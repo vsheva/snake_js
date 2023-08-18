@@ -23,7 +23,8 @@ const setEvent = (newEvent) => {
   if (lastMove.event !== "start game") {
     const newRecord = { ...lastMove, time: time, event: newEvent };
     protocol[protocol.length - 1] = newRecord;
-    if (newEvent !== "game over") protocol.push(newRecord);
+    if (newEvent !== "game over" && !newEvent.includes("new"))
+      protocol.push(newRecord);
   }
 };
 
@@ -65,7 +66,6 @@ const initGame = (timeStep) => {
     case "food eaten":
       snakeBody.push([]);
       changeFoodPosition();
-      setEvent("");
       score++;
       highScore = score >= highScore ? score : highScore;
       localStorage.setItem("high-score", highScore);
