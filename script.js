@@ -7,6 +7,8 @@ let htmlMarkup = "";
 let gameOver = false;
 let foodX;
 let foodY;
+let obstacleX;
+let obstacleY;
 let snakeX = 5;
 let snakeY = 10;
 let snakeBody = [];
@@ -14,7 +16,7 @@ let setIntervalId;
 let score = 0;
 let highScore = localStorage.getItem("high-score") || 0;
 highScoreElement.innerHTML = `High Score: ${highScore}`;
-const timeStep = 125;
+const timeStep = 100;
 let time = 0;
 const protocol = [{ time: time, move: "", step: 0, event: "start game" }];
 
@@ -32,6 +34,12 @@ const changeFoodPosition = () => {
   foodX = Math.floor(Math.random() * 30) + 1;
   foodY = Math.floor(Math.random() * 30) + 1;
   setEvent("new food coordinates: " + foodX + ":" + foodY);
+};
+
+const setObstaclePosition = () => {
+  obstacleX = Math.floor(Math.random() * 30) + 1;
+  obstacleY = Math.floor(Math.random() * 30) + 1;
+  setEvent("add obstacle: " + obstacleX + ":" + obstacleY);
 };
 
 const changeDirection = (e) => {
@@ -56,9 +64,14 @@ controls.forEach((key) => {
 
 const initGame = (timeStep) => {
   htmlMarkup = `<div class="food" style="grid-area: ${foodY} / ${foodX}"></div>`;
+  htmlMarkup += `<div class="obstacle" style="grid-area: ${obstacleY} / ${obstacleX}"></div>`;
 
   if (snakeX === foodX && snakeY === foodY) {
     setEvent("food eaten");
+  }
+
+  if (snakeX === obstacleX && snakeY === obstacleY) {
+    setEvent("game over");
   }
 
   const { move, step, event } = protocol[protocol.length - 1];
@@ -110,6 +123,7 @@ const initGame = (timeStep) => {
   playBoard.innerHTML = htmlMarkup;
 };
 changeFoodPosition();
+setObstaclePosition();
 initGame();
 setIntervalId = setInterval(() => {
   initGame(timeStep);
