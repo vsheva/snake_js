@@ -22,12 +22,12 @@ const protocol = [{ time: time, move: "", step: 0, event: "start game" }];
 
 const setEvent = (newEvent) => {
   const lastMove = protocol[protocol.length - 1];
+  const newRecord = { ...lastMove, time: time, event: newEvent };
   if (lastMove.event !== "start game") {
-    const newRecord = { ...lastMove, time: time, event: newEvent };
     protocol[protocol.length - 1] = newRecord;
     if (newEvent !== "game over" && !newEvent.includes("new"))
       protocol.push(newRecord);
-  }
+  } else protocol.unshift(newRecord);
 };
 
 const changeFoodPosition = () => {
@@ -39,7 +39,7 @@ const changeFoodPosition = () => {
 const setObstaclePosition = () => {
   obstacleX = Math.floor(Math.random() * 30) + 1;
   obstacleY = Math.floor(Math.random() * 30) + 1;
-  setEvent("add obstacle: " + obstacleX + ":" + obstacleY);
+  setEvent("fix obstacle coordinates: " + obstacleX + ":" + obstacleY);
 };
 
 const changeDirection = (e) => {
