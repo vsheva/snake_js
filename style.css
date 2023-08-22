@@ -42,6 +42,11 @@ body {
 .play-board .obstacle {
   background: orange;
 }
+
+.play-board .bonus {
+  background: green;
+}
+
 .play-board .head {
   background: #60cbff;
 }
