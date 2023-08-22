@@ -9,6 +9,9 @@ let foodX;
 let foodY;
 let obstacleX;
 let obstacleY;
+let bonusX;
+let bonusY;
+let isBonus;
 let snakeX = 5;
 let snakeY = 10;
 let snakeBody = [];
@@ -42,6 +45,13 @@ const setObstaclePosition = () => {
   setEvent("fix obstacle coordinates: " + obstacleX + ":" + obstacleY);
 };
 
+const setBonusPosition = () => {
+  isBonus = true;
+  bonusX = Math.floor(Math.random() * 30) + 1;
+  bonusY = Math.floor(Math.random() * 30) + 1;
+  setEvent("new point bonus coordinates: " + bonusX + ":" + bonusY);
+};
+
 const changeDirection = (e) => {
   const { move } = protocol[protocol.length - 1];
   if (e.key === "ArrowUp" && move !== "Y") {
@@ -65,6 +75,8 @@ controls.forEach((key) => {
 const initGame = (timeStep) => {
   htmlMarkup = `<div class="food" style="grid-area: ${foodY} / ${foodX}"></div>`;
   htmlMarkup += `<div class="obstacle" style="grid-area: ${obstacleY} / ${obstacleX}"></div>`;
+  if (isBonus)
+    htmlMarkup += `<div class="bonus" style="grid-area: ${bonusY} / ${bonusX}"></div>`;
 
   if (snakeX === foodX && snakeY === foodY) {
     setEvent("food eaten");
@@ -74,12 +86,24 @@ const initGame = (timeStep) => {
     setEvent("game over");
   }
 
+  if (snakeX === bonusX && snakeY === bonusY && isBonus) {
+    setEvent("bonus eaten");
+  }
+
   const { move, step, event } = protocol[protocol.length - 1];
   switch (event) {
     case "food eaten":
       snakeBody.push([]);
       changeFoodPosition();
       score++;
+      highScore = score >= highScore ? score : highScore;
+      localStorage.setItem("high-score", highScore);
+      scoreElement.innerHTML = `Score: ${score}`;
+      highScoreElement.innerHTML = `High Score: ${highScore}`;
+      break;
+    case "bonus eaten":
+      isBonus = false;
+      score += 10;
       highScore = score >= highScore ? score : highScore;
       localStorage.setItem("high-score", highScore);
       scoreElement.innerHTML = `Score: ${score}`;
@@ -124,9 +148,10 @@ const initGame = (timeStep) => {
 };
 changeFoodPosition();
 setObstaclePosition();
+setBonusPosition();
 initGame();
-setIntervalId = setInterval(() => {
-  initGame(timeStep);
-  time = time + timeStep;
-}, timeStep);
+// setIntervalId = setInterval(() => {
+//   initGame(timeStep);
+//   time = time + timeStep;
+// }, timeStep);
 document.addEventListener("keydown", changeDirection);
