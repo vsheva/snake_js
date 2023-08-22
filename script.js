@@ -16,7 +16,7 @@ let setIntervalId;
 let score = 0;
 let highScore = localStorage.getItem("high-score") || 0;
 highScoreElement.innerHTML = `High Score: ${highScore}`;
-const timeStep = 100;
+const timeStep = 125;
 let time = 0;
 const protocol = [{ time: time, move: "", step: 0, event: "start game" }];
 
