@@ -15,10 +15,7 @@ const levels = [
     field: 15,
     time: 10000, // 00:10
     timeStep: 250,
-    food: {
-      amount: 2,
-      scores: 1,
-    },
+    food: 2,
     obstacles: [],
     bonuses: [],
     maxScores: 2,
@@ -27,10 +24,7 @@ const levels = [
     field: 30,
     time: 40000,
     timeStep: 125,
-    food: {
-      amount: 7,
-      scores: 1,
-    },
+    food: 8,
     obstacles: ["fix", "fix"],
     bonuses: [
       { type: "points", value: 10, startFood: 3 },
@@ -42,6 +36,8 @@ const levels = [
 const maxLevel = levels.length;
 let level = 1;
 let field;
+let foodLevel;
+let currentFood;
 let isLevelComplete = false;
 let screen = "";
 let foodX;
@@ -96,6 +92,7 @@ const getFreeCell = (bookedCells) => {
 const setLevel = () => {
   protocol.push({ time: time, event: "start game", value: level });
   field = levels[level - 1].field;
+  foodLevel = levels[level - 1].food;
   levelTime = levels[level - 1].time;
   timeStep = levels[level - 1].timeStep;
   maxScores = levels[level - 1].maxScores;
@@ -103,8 +100,10 @@ const setLevel = () => {
 
 const counter = () => {
   // проверка генерации еды
-  const foodAmount = protocol.filter((notice) => notice.event === "food eaten");
-  leftToEat = levels[level - 1].food.amount - foodAmount.length;
+  currentFood = protocol.filter(
+    (notice) => notice.event === "food eaten"
+  ).length;
+  leftToEat = foodLevel - currentFood;
   if (leftToEat === 0) {
     setEvent("level is complete", level);
     isLevelComplete = true;
@@ -116,11 +115,11 @@ const counter = () => {
       return { start: li, end: li + 2 };
     });
     for (let i = 0; i < bonusesList.length; i++) {
-      if (foodAmount.length === bonusesList[i].start) {
+      if (currentFood === bonusesList[i].start) {
         isBonus = true;
         currentBonus = i;
       }
-      if (foodAmount.length === bonusesList[i].end) {
+      if (currentFood === bonusesList[i].end) {
         isBonus = false;
         isBonusEaten = false;
       }
@@ -129,8 +128,10 @@ const counter = () => {
 };
 
 const setFoodPosition = () => {
-  [foodX, foodY] = getFreeCell(snakeBody.concat(obstacles));
-  setEvent("set food", foodX + ":" + foodY);
+  if (currentFood !== foodLevel - 1) {
+    [foodX, foodY] = getFreeCell(snakeBody.concat(obstacles));
+    setEvent("set food", foodX + ":" + foodY);
+  }
 };
 
 const setObstaclePosition = () => {
@@ -200,7 +201,7 @@ const render = () => {
     screen += `<div class="bonus" style="grid-area: ${bonusY} / ${bonusX}"></div>`;
   // после  игрового поля создается табло
   scoreElement.innerHTML = `Score: ${score}`; // текущие очки
-  leftToEat.innerHTML = `LeftToEat: ${leftToEat}`; // максимально возможный результат
+  leftToEatElement.innerHTML = `LeftToEat: ${leftToEat}`; // максимально возможный результат
   // остаток времени до окончания уровня
   timeElement.innerHTML = `Time: ${millisecondsToMinutesAndSeconds(
     levelTime - time < 0 ? 0 : levelTime - time
@@ -242,7 +243,7 @@ const checkingRestrictions = () => {
 const checkingInteractions = () => {
   // проверка соприкосновения змейки с едой
   if (snakeX === foodX && snakeY === foodY) {
-    setEvent("food eaten", foodPoints);
+    setEvent("food eaten", currentFood + 1);
   }
   // проверка соприкосновения змейки с бонусом
   if (snakeX === bonusX && snakeY === bonusY && isBonus) {
@@ -271,7 +272,7 @@ const protocolExecutor = () => {
     case "food eaten":
       snakeBody.push([]);
       setFoodPosition();
-      score += value;
+      score += foodPoints;
       break;
     case "bonus eaten":
       if (!isBonusEaten) {
