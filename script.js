@@ -1,6 +1,6 @@
 const playBoard = document.querySelector(".play-board");
 const scoreElement = document.querySelector(".score");
-const highScoreElement = document.querySelector(".high-score");
+const leftToEatElement = document.querySelector(".left-to-eat");
 const timeElement = document.querySelector(".time");
 const levelElement = document.querySelector(".level");
 const controls = document.querySelectorAll(".controls i");
@@ -13,7 +13,7 @@ function millisecondsToMinutesAndSeconds(milliseconds) {
 const levels = [
   {
     field: 15,
-    time: 10000,
+    time: 10000, // 00:10
     timeStep: 250,
     food: {
       amount: 2,
@@ -43,7 +43,6 @@ const maxLevel = levels.length;
 let level = 1;
 let field;
 let isLevelComplete = false;
-let htmlMarkup = "";
 let screen = "";
 let foodX;
 let foodY;
@@ -56,8 +55,6 @@ let isBonus = false;
 let isBonusEaten = false;
 let currentBonus;
 let leftToEat;
-let isEvent = false;
-let move = "";
 let stepX = 0;
 let stepY = 0;
 let snakeX = 5;
@@ -66,7 +63,6 @@ let snakeBody = [[snakeX, snakeY]];
 let setIntervalId;
 let score = 0;
 const foodPoints = 1;
-const bonusPoints = 10;
 let maxScores;
 let levelTime;
 let isTime = false;
@@ -307,7 +303,6 @@ const protocolExecutor = () => {
       setLevel();
       setObstaclePosition();
       setFoodPosition();
-      setBonusPosition();
       setIntervalId = setInterval(() => {
         // перемещение змейки по игровому полю
         moveSnake();
