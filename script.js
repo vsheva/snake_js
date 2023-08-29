@@ -200,7 +200,7 @@ const render = () => {
     screen += `<div class="bonus" style="grid-area: ${bonusY} / ${bonusX}"></div>`;
   // после  игрового поля создается табло
   scoreElement.innerHTML = `Score: ${score}`; // текущие очки
-  highScoreElement.innerHTML = `LeftToEat: ${leftToEat}`; // максимально возможный результат
+  leftToEat.innerHTML = `LeftToEat: ${leftToEat}`; // максимально возможный результат
   // остаток времени до окончания уровня
   timeElement.innerHTML = `Time: ${millisecondsToMinutesAndSeconds(
     levelTime - time < 0 ? 0 : levelTime - time
