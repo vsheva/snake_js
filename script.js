@@ -13,7 +13,7 @@ function millisecondsToMinutesAndSeconds(milliseconds) {
 const levels = [
   {
     field: 15,
-    time: 10000, // 00:10
+    time: 15000, // 00:15
     timeStep: 250,
     food: 2,
     obstacles: [],
@@ -22,9 +22,9 @@ const levels = [
   },
   {
     field: 30,
-    time: 40000,
+    time: 45000,
     timeStep: 125,
-    food: 8,
+    food: 9,
     obstacles: ["fix", "fix"],
     bonuses: [
       { type: "points", value: 10, startFood: 3 },
@@ -49,6 +49,7 @@ let bonusX;
 let bonusY;
 let isBonus = false;
 let isBonusEaten = false;
+let isBonusShow = false;
 let currentBonus;
 let leftToEat;
 let stepX = 0;
@@ -115,13 +116,18 @@ const counter = () => {
       return { start: li, end: li + 2 };
     });
     for (let i = 0; i < bonusesList.length; i++) {
-      if (currentFood === bonusesList[i].start) {
+      if (currentFood === bonusesList[i].start && !isBonusShow) {
         isBonus = true;
+        isBonusShow = true;
         currentBonus = i;
+        setBonusPosition();
       }
       if (currentFood === bonusesList[i].end) {
+        if (isBonusShow && !isBonusEaten)
+          setEvent("bonus is deleted", currentBonus + 1);
         isBonus = false;
         isBonusEaten = false;
+        isBonusShow = false;
       }
     }
   }
@@ -340,7 +346,6 @@ const protocolExecutor = () => {
 setLevel();
 setObstaclePosition();
 setFoodPosition();
-setBonusPosition();
 setIntervalId = setInterval(() => {
   // перемещение змейки по игровому полю
   moveSnake();
