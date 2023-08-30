@@ -1,8 +1,9 @@
 const playBoard = document.querySelector(".play-board");
-const scoreElement = document.querySelector(".score");
-const leftToEatElement = document.querySelector(".left-to-eat");
-const timeElement = document.querySelector(".time");
-const levelElement = document.querySelector(".level");
+const scoreElement = document.querySelector(".fa-wallet");
+const leftToEatElement = document.querySelector(".fa-carrot");
+const timeElement = document.querySelector(".fa-clock");
+const levelElement = document.querySelector(".fa-stairs");
+const lifeElement = document.querySelector(".fa-heart");
 const controls = document.querySelectorAll(".controls i");
 
 function millisecondsToMinutesAndSeconds(milliseconds) {
@@ -72,7 +73,7 @@ const setEvent = (newEvent, newValue) => {
   if (isTime) {
     protocol.push(newRecord);
     if (newRecord.event === "game over") isTime = false;
-  } else protocol.unshift(newRecord);
+  } else protocol.unshift(newRecord); //  ?????
 };
 
 const getFreeCell = (bookedCells) => {
@@ -97,6 +98,7 @@ const setLevel = () => {
   levelTime = levels[level - 1].time;
   timeStep = levels[level - 1].timeStep;
   maxScores = levels[level - 1].maxScores;
+  isTime = false;
 };
 
 const counter = () => {
@@ -131,6 +133,7 @@ const counter = () => {
       }
     }
   }
+  // проверка на прерывание игры
 };
 
 const setFoodPosition = () => {
@@ -206,13 +209,14 @@ const render = () => {
   if (isBonus && !isBonusEaten)
     screen += `<div class="bonus" style="grid-area: ${bonusY} / ${bonusX}"></div>`;
   // после  игрового поля создается табло
-  scoreElement.innerHTML = `Score: ${score}`; // текущие очки
-  leftToEatElement.innerHTML = `LeftToEat: ${leftToEat}`; // максимально возможный результат
+  scoreElement.innerHTML = ` ${score}`; // текущие очки
+  leftToEatElement.innerHTML = ` ${leftToEat}`; // максимально возможный результат
   // остаток времени до окончания уровня
-  timeElement.innerHTML = `Time: ${millisecondsToMinutesAndSeconds(
+  timeElement.innerHTML = ` ${millisecondsToMinutesAndSeconds(
     levelTime - time < 0 ? 0 : levelTime - time
   )}`;
-  levelElement.innerHTML = `Level: ${level}`; // текущий уровень
+  levelElement.innerHTML = ` ${level}`; // текущий уровень
+  lifeElement.innerHTML = ` ${3}`;
   // вывод созданного изображения на экран
   playBoard.innerHTML = !isLevelComplete ? screen : "";
 };
