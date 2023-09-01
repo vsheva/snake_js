@@ -225,9 +225,10 @@ const render = () => {
 */
 const checkingRestrictions = () => {
   // проверка соприкосновения с препятствиями
-  if (snakeX === obstacleX && snakeY === obstacleY) {
-    setEvent("game over", "obstacle contact");
-  }
+  for (let i = 0; i < obstacles.length; i++)
+    if (snakeX === obstacles[i].X && snakeY === obstacles[i].Y) {
+      setEvent("game over", "obstacle contact");
+    }
   // проверка соприкосновения с границами поля
   if (snakeX <= 0 || snakeX > field || snakeY <= 0 || snakeY > field) {
     setEvent("game over", "border contact");
@@ -332,7 +333,10 @@ const protocolExecutor = () => {
     case "game over":
       clearInterval(setIntervalId);
       alert("Game over! Press OK to replay...");
-      localStorage.setItem("protocol", JSON.stringify(protocol));
+      localStorage.setItem(
+        "protocol",
+        JSON.stringify(protocol.sort((x, y) => x.time - y.time))
+      );
       location.reload();
       break;
     case "X":
