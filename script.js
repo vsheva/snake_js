@@ -150,6 +150,9 @@ const counter = () => {
     }
   }
   // проверка на прерывание игры
+  if (time >= levelTime) {
+    setEvent("game over", "time limit");
+  }
 };
 
 const setFoodPosition = () => {
@@ -243,11 +246,14 @@ const checkingRestrictions = () => {
   // проверка соприкосновения с препятствиями
   for (let i = 0; i < obstacles.length; i++)
     if (snakeX === obstacles[i].X && snakeY === obstacles[i].Y) {
-      setEvent("game over", "obstacle contact");
+      setEvent(
+        "game over",
+        "obstacle " + obstacles[i].X + ":" + obstacles[i].Y + " contact"
+      );
     }
   // проверка соприкосновения с границами поля
   if (snakeX <= 0 || snakeX > field || snakeY <= 0 || snakeY > field) {
-    setEvent("game over", "border contact");
+    setEvent("game over", "border " + snakeX + ":" + snakeY + " contact");
   }
   // проверка соприкосновения змейки с самой собой
   for (let i = 0; i < snakeBody.length; i++) {
@@ -256,12 +262,11 @@ const checkingRestrictions = () => {
       snakeBody[0][1] === snakeBody[i][1] &&
       snakeBody[0][0] === snakeBody[i][0]
     ) {
-      setEvent("game over", "contact with oneself");
+      setEvent(
+        "game over",
+        "contact with oneself " + snakeBody[0][0] + ":" + snakeBody[0][1]
+      );
     }
-  }
-  // проверка превышения лимита времени, отведенного на текущий уровень
-  if (time >= levelTime) {
-    setEvent("game over", "time limit");
   }
 };
 /*
