@@ -26,7 +26,7 @@ const levels = [
     time: 45000,
     timeStep: 125,
     food: 9,
-    obstacles: ["fix", "fix"],
+    obstacles: ["fix", "fix", "x", "y"],
     bonuses: [
       { type: "points", value: 10, startFood: 3 },
       { type: "points", value: 20, startFood: 6 },
@@ -72,7 +72,11 @@ const setEvent = (newEvent, newValue) => {
   const newRecord = { time: time, event: newEvent, value: newValue };
   if (isTime) {
     protocol.push(newRecord);
-    if (newRecord.event === "game over") isTime = false;
+    if (
+      newRecord.event === "game over" ||
+      newRecord.event === "level is complete"
+    )
+      isTime = false;
   } else protocol.unshift(newRecord); //  ?????
 };
 
@@ -116,7 +120,13 @@ const counter = () => {
     let bonusesList = levels[level - 1].bonuses.map((bonus) => bonus.startFood);
     bonusesList = bonusesList.map((li) => {
       return { start: li, end: li + 2 };
-    });
+    }); // [{3, 5}, {6, 8}]
+    /*
+1) бонус должен быть виден, а он не виден (пришло время показать бонус)
+2) бонус должен быть виден и он виден (бонус показан)
+3) бонус должен быть виден, но он не виден (бонус съеден)
+4) бонус не должен быть виден, а он виден (пришло время убрать бонус с экрана)
+*/
     for (let i = 0; i < bonusesList.length; i++) {
       if (currentFood === bonusesList[i].start && !isBonusShow) {
         isBonus = true;
@@ -296,7 +306,10 @@ const protocolExecutor = () => {
       if (level > levels.length) {
         clearInterval(setIntervalId);
         alert("You WIN! Press OK to replay...");
-        localStorage.setItem("protocol", JSON.stringify(protocol));
+        localStorage.setItem(
+          "protocol",
+          JSON.stringify(protocol.sort((x, y) => x.time - y.time))
+        );
         location.reload();
         break;
       }
