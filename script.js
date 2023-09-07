@@ -70,14 +70,20 @@ const protocol = [];
 
 const setEvent = (newEvent, newValue) => {
   const newRecord = { time: time, event: newEvent, value: newValue };
-  if (isTime) {
-    protocol.push(newRecord);
-    if (
-      newRecord.event === "game over" ||
-      newRecord.event === "level is complete"
-    )
-      isTime = false;
-  } else protocol.unshift(newRecord); //  ?????
+  protocol.push(newRecord);
+  if (
+    newRecord.event === "game over" ||
+    newRecord.event === "level is complete"
+  )
+    isTime = false;
+  // if (isTime) {
+  //   protocol.push(newRecord);
+  //   if (
+  //     newRecord.event === "game over" ||
+  //     newRecord.event === "level is complete"
+  //   )
+  //     isTime = false;
+  // } else protocol.unshift(newRecord); //  ?????
 };
 
 const getFreeCell = (bookedCells) => {
@@ -96,7 +102,7 @@ const getFreeCell = (bookedCells) => {
 };
 
 const setLevel = () => {
-  protocol.push({ time: time, event: "start game", value: level });
+  protocol.push({ time: time, event: "start level", value: level });
   field = levels[level - 1].field;
   foodLevel = levels[level - 1].food;
   levelTime = levels[level - 1].time;
@@ -301,31 +307,13 @@ const protocolExecutor = () => {
         score += value;
       }
       break;
-    case "level is complete":
-      level++;
-      if (level > levels.length) {
-        clearInterval(setIntervalId);
-        alert("You WIN! Press OK to replay...");
-        localStorage.setItem(
-          "protocol",
-          JSON.stringify(protocol.sort((x, y) => x.time - y.time))
-        );
-        location.reload();
-        break;
-      }
-      clearInterval(setIntervalId);
-      alert(
-        `Level ${
-          level - 1
-        } is complete! Congratulation! Well done! It's time to Level ${level}`
-      );
+    case "start level":
       isLevelComplete = false;
       snakeX = 5;
       snakeY = 10;
       stepX = 0;
       stepY = 0;
       snakeBody = [[snakeX, snakeY]];
-      setLevel();
       setObstaclePosition();
       setFoodPosition();
       setIntervalId = setInterval(() => {
@@ -343,13 +331,28 @@ const protocolExecutor = () => {
         timer();
       }, timeStep);
       break;
+    case "level is complete":
+      level++;
+      if (level > levels.length) {
+        clearInterval(setIntervalId);
+        alert("You WIN! Press OK to replay...");
+        localStorage.setItem("protocol", JSON.stringify(protocol));
+        location.reload();
+        break;
+      }
+      clearInterval(setIntervalId);
+      alert(
+        `Level ${
+          level - 1
+        } is complete! Congratulation! Well done! It's time to Level ${level}`
+      );
+      setLevel();
+      protocolExecutor();
+      break;
     case "game over":
       clearInterval(setIntervalId);
       alert("Game over! Press OK to replay...");
-      localStorage.setItem(
-        "protocol",
-        JSON.stringify(protocol.sort((x, y) => x.time - y.time))
-      );
+      localStorage.setItem("protocol", JSON.stringify(protocol));
       location.reload();
       break;
     case "X":
@@ -365,21 +368,6 @@ const protocolExecutor = () => {
 
 // игра
 setLevel();
-setObstaclePosition();
-setFoodPosition();
-setIntervalId = setInterval(() => {
-  // перемещение змейки по игровому полю
-  moveSnake();
-  // проверка всех предусмотренных игрой ограничений
-  checkingRestrictions();
-  // проверка доступных игроку взаимодействий
-  checkingInteractions();
-  protocolExecutor();
-  counter();
-  // вывод текущего изображения игры
-  render();
-  // отсчет игрового времени
-  timer();
-}, timeStep);
+protocolExecutor();
 
 document.addEventListener("keydown", changeDirection);
