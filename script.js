@@ -14,7 +14,7 @@ function millisecondsToMinutesAndSeconds(milliseconds) {
 const levels = [
   {
     field: 15,
-    time: 15000, // 00:15
+    time: 15000,
     timeStep: 250,
     food: 2,
     obstacles: [],
@@ -23,13 +23,13 @@ const levels = [
   },
   {
     field: 30,
-    time: 45000,
+    time: 35000,
     timeStep: 125,
-    food: 9,
+    food: 8,
     obstacles: ["fix", "fix", "x", "y"],
     bonuses: [
-      { type: "points", value: 10, startFood: 3 },
-      { type: "points", value: 20, startFood: 6 },
+      { type: "points", value: 10, startFood: 2 },
+      { type: "points", value: 20, startFood: 5 },
     ],
     maxScores: 39,
   },
@@ -76,14 +76,6 @@ const setEvent = (newEvent, newValue) => {
     newRecord.event === "level is complete"
   )
     isTime = false;
-  // if (isTime) {
-  //   protocol.push(newRecord);
-  //   if (
-  //     newRecord.event === "game over" ||
-  //     newRecord.event === "level is complete"
-  //   )
-  //     isTime = false;
-  // } else protocol.unshift(newRecord); //  ?????
 };
 
 const getFreeCell = (bookedCells) => {
@@ -109,13 +101,17 @@ const setLevel = () => {
   timeStep = levels[level - 1].timeStep;
   maxScores = levels[level - 1].maxScores;
   isTime = false;
+  time = 0;
 };
 
 const counter = () => {
   // проверка генерации еды
-  currentFood = protocol.filter(
-    (notice) => notice.event === "food eaten"
-  ).length;
+  const currentLevelProtocolStart = protocol.findIndex(
+    (notice) => notice.event === "start level" && notice.value === level
+  );
+  currentFood = protocol
+    .slice(currentLevelProtocolStart)
+    .filter((notice) => notice.event === "food eaten").length;
   leftToEat = foodLevel - currentFood;
   if (leftToEat === 0) {
     setEvent("level is complete", level);
@@ -126,13 +122,7 @@ const counter = () => {
     let bonusesList = levels[level - 1].bonuses.map((bonus) => bonus.startFood);
     bonusesList = bonusesList.map((li) => {
       return { start: li, end: li + 2 };
-    }); // [{3, 5}, {6, 8}]
-    /*
-1) бонус должен быть виден, а он не виден (пришло время показать бонус)
-2) бонус должен быть виден и он виден (бонус показан)
-3) бонус должен быть виден, но он не виден (бонус съеден)
-4) бонус не должен быть виден, а он виден (пришло время убрать бонус с экрана)
-*/
+    });
     for (let i = 0; i < bonusesList.length; i++) {
       if (currentFood === bonusesList[i].start && !isBonusShow) {
         isBonus = true;
