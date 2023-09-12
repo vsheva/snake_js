@@ -16,7 +16,8 @@ const levels = [
     field: 15,
     time: 15000,
     timeStep: 250,
-    food: 2,
+    food: 40,
+    snakeLives: 2,
     obstacles: [],
     bonuses: [],
     maxScores: 2,
@@ -26,6 +27,7 @@ const levels = [
     time: 35000,
     timeStep: 125,
     food: 8,
+    snakeLives: 3,
     obstacles: ["fix", "fix", "x", "y"],
     bonuses: [
       { type: "points", value: 10, startFood: 2 },
@@ -43,6 +45,8 @@ let isLevelComplete = false;
 let screen = "";
 let foodX;
 let foodY;
+let snakeLives;
+let isMistake = false;
 const obstacles = [];
 let obstacleX;
 let obstacleY;
@@ -55,8 +59,8 @@ let currentBonus;
 let leftToEat;
 let stepX = 0;
 let stepY = 0;
-let snakeX = 5;
-let snakeY = 10;
+let snakeX = 1;
+let snakeY = 1;
 let snakeBody = [[snakeX, snakeY]];
 let setIntervalId;
 let score = 0;
@@ -79,14 +83,24 @@ const setEvent = (newEvent, newValue) => {
 };
 
 const getFreeCell = (bookedCells) => {
+  const snakeReserve = [];
+  const snakeRows = Math.floor(foodLevel / field);
+  for (let i = 0; i < snakeRows; i++) {
+    for (let y = 0; y < field; y++) {
+      snakeReserve.push([1 + y, 1 + i]);
+    }
+  }
+  for (let z = 0; z < foodLevel - snakeRows * field; z++)
+    snakeReserve.push([1 + z, snakeRows + 1]);
+  bookedCells = bookedCells.concat(snakeReserve);
   let freeCellX;
   let freeCellY;
   do {
     freeCellX = Math.floor(Math.random() * field) + 1;
     freeCellY = Math.floor(Math.random() * field) + 1;
   } while (
-    bookedCells.every(
-      (coord) => coord[0] === freeCellX || coord[1] === freeCellY
+    bookedCells.some(
+      (coord) => coord[0] === freeCellX && coord[1] === freeCellY
     )
   );
 
@@ -94,14 +108,15 @@ const getFreeCell = (bookedCells) => {
 };
 
 const setLevel = () => {
+  time = 0;
   protocol.push({ time: time, event: "start level", value: level });
   field = levels[level - 1].field;
   foodLevel = levels[level - 1].food;
   levelTime = levels[level - 1].time;
   timeStep = levels[level - 1].timeStep;
   maxScores = levels[level - 1].maxScores;
+  snakeLives = levels[level - 1].snakeLives;
   isTime = false;
-  time = 0;
 };
 
 const counter = () => {
@@ -139,22 +154,29 @@ const counter = () => {
       }
     }
   }
-  // проверка на прерывание игры
-  if (time >= levelTime) {
-    setEvent("game over", "time limit");
+  // проверка оставшихся жизней
+  if (isMistake) {
+    snakeLives -= 1;
+    snakeLives === 0
+      ? setEvent("game over", "lives limit")
+      : setEvent("level continue", level);
   }
+  // проверка на прерывание игры
+  if (time >= levelTime) setEvent("game over", "time limit");
 };
 
 const setFoodPosition = () => {
+  let copySnake = snakeBody.slice();
   if (currentFood !== foodLevel - 1) {
-    [foodX, foodY] = getFreeCell(snakeBody.concat(obstacles));
+    [foodX, foodY] = getFreeCell(copySnake.concat(obstacles));
     setEvent("set food", foodX + ":" + foodY);
   }
 };
 
 const setObstaclePosition = () => {
   let booking = [];
-  booking.push(snakeBody);
+  let copySnake = snakeBody.slice();
+  booking.push(copySnake);
   for (let i = 0; i < levels[level - 1].obstacles.length; i++) {
     [obstacleX, obstacleY] = getFreeCell(booking);
     obstacles.push({ X: obstacleX, Y: obstacleY });
@@ -164,7 +186,8 @@ const setObstaclePosition = () => {
 };
 
 const setBonusPosition = () => {
-  [bonusX, bonusY] = getFreeCell(snakeBody.concat(obstacles, [foodX, foodY]));
+  let copySnake = snakeBody.slice();
+  [bonusX, bonusY] = getFreeCell(copySnake.concat(obstacles, [foodX, foodY]));
   setEvent("set point bonus", bonusX + ":" + bonusY);
 };
 
@@ -182,8 +205,8 @@ const changeDirection = (e) => {
   } else {
     return;
   }
+  if (isTime || !isMistake || time === 0) protocol.push(newEvent);
   isTime = true;
-  protocol.push(newEvent);
 };
 
 controls.forEach((key) => {
@@ -225,7 +248,7 @@ const render = () => {
     levelTime - time < 0 ? 0 : levelTime - time
   )}`;
   levelElement.innerHTML = ` ${level}`; // текущий уровень
-  lifeElement.innerHTML = ` ${3}`;
+  lifeElement.innerHTML = ` ${snakeLives}`;
   // вывод созданного изображения на экран
   playBoard.innerHTML = !isLevelComplete ? screen : "";
 };
@@ -237,13 +260,14 @@ const checkingRestrictions = () => {
   for (let i = 0; i < obstacles.length; i++)
     if (snakeX === obstacles[i].X && snakeY === obstacles[i].Y) {
       setEvent(
-        "game over",
+        "life lost",
         "obstacle " + obstacles[i].X + ":" + obstacles[i].Y + " contact"
       );
     }
   // проверка соприкосновения с границами поля
+
   if (snakeX <= 0 || snakeX > field || snakeY <= 0 || snakeY > field) {
-    setEvent("game over", "border " + snakeX + ":" + snakeY + " contact");
+    setEvent("life lost", "border " + snakeX + ":" + snakeY + " contact");
   }
   // проверка соприкосновения змейки с самой собой
   for (let i = 0; i < snakeBody.length; i++) {
@@ -253,7 +277,7 @@ const checkingRestrictions = () => {
       snakeBody[0][0] === snakeBody[i][0]
     ) {
       setEvent(
-        "game over",
+        "life lost",
         "contact with oneself " + snakeBody[0][0] + ":" + snakeBody[0][1]
       );
     }
@@ -276,16 +300,18 @@ const checkingInteractions = () => {
   функция moveSnake() изменяет координаты змейки
 */
 const moveSnake = () => {
-  snakeX += stepX;
-  snakeY += stepY;
-  // смещаем координаты каждого элемента в массиве
-  // с координатами змейки на один элемент назад
-  for (let i = snakeBody.length - 1; i > 0; i--) {
-    snakeBody[i] = snakeBody[i - 1];
+  if (stepX !== 0 || stepY !== 0) {
+    snakeX += stepX;
+    snakeY += stepY;
+    // смещаем координаты каждого элемента в массиве
+    // с координатами змейки на один элемент назад
+    for (let i = snakeBody.length - 1; i > 0; i--) {
+      snakeBody[i] = snakeBody[i - 1];
+    }
+    // на место освободившегося первого элемента вводим текущие
+    // координаты головы змейки
+    snakeBody[0] = [snakeX, snakeY];
   }
-  // на место освободившегося первого элемента вводим текущие
-  // координаты головы змейки
-  snakeBody[0] = [snakeX, snakeY];
 };
 
 const protocolExecutor = () => {
@@ -304,8 +330,8 @@ const protocolExecutor = () => {
       break;
     case "start level":
       isLevelComplete = false;
-      snakeX = 5;
-      snakeY = 10;
+      snakeX = 1;
+      snakeY = 1;
       stepX = 0;
       stepY = 0;
       snakeBody = [[snakeX, snakeY]];
@@ -343,6 +369,23 @@ const protocolExecutor = () => {
       );
       setLevel();
       protocolExecutor();
+      break;
+    case "life lost":
+      isMistake = true;
+      alert(
+        `You made a mistake here! Be careful! You only have ${snakeLives} lives left!`
+      );
+      stepX = 0;
+      stepY = 0;
+      let snakeLength = snakeBody.length;
+      snakeX = snakeLength;
+      snakeY = 1;
+      snakeBody = [[snakeX, snakeY]];
+      for (let i = 1; i < snakeLength; i++) snakeBody.push([snakeX - i, 1]);
+      isTime = false;
+      break;
+    case "level continue":
+      isMistake = false;
       break;
     case "game over":
       clearInterval(setIntervalId);
