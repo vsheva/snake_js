@@ -16,7 +16,7 @@ const levels = [
     field: 15,
     time: 15000,
     timeStep: 250,
-    food: 40,
+    food: 2,
     snakeLives: 2,
     obstacles: [],
     bonuses: [],
