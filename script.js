@@ -67,6 +67,7 @@ let score = 0;
 const foodPoints = 1;
 let maxScores;
 let levelTime;
+let extraTime = 0;
 let isTime = false;
 let timeStep;
 let time = 0;
@@ -112,7 +113,7 @@ const setLevel = () => {
   protocol.push({ time: time, event: "start level", value: level });
   field = levels[level - 1].field;
   foodLevel = levels[level - 1].food;
-  levelTime = levels[level - 1].time;
+  levelTime = levels[level - 1].time + extraTime;
   timeStep = levels[level - 1].timeStep;
   maxScores = levels[level - 1].maxScores;
   snakeLives = levels[level - 1].snakeLives;
@@ -130,6 +131,7 @@ const counter = () => {
   leftToEat = foodLevel - currentFood;
   if (leftToEat === 0) {
     setEvent("level is complete", level);
+    extraTime = levelTime - time;
     isLevelComplete = true;
   }
   // проверка генерации бонусов
