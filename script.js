@@ -68,6 +68,7 @@ const foodPoints = 1;
 let maxScores;
 let levelTime;
 let extraTime = 0;
+let liveScores = 0;
 let isTime = false;
 let timeStep;
 let time = 0;
@@ -117,6 +118,7 @@ const setLevel = () => {
   timeStep = levels[level - 1].timeStep;
   maxScores = levels[level - 1].maxScores;
   snakeLives = levels[level - 1].snakeLives;
+  score = score + liveScores;
   isTime = false;
 };
 
@@ -132,8 +134,10 @@ const counter = () => {
   if (leftToEat === 0) {
     setEvent("level is complete", level);
     extraTime = levelTime - time;
+    liveScores = snakeLives * 3;
     isLevelComplete = true;
   }
+
   // проверка генерации бонусов
   if (levels[level - 1].bonuses.length !== 0) {
     let bonusesList = levels[level - 1].bonuses.map((bonus) => bonus.startFood);
@@ -159,7 +163,7 @@ const counter = () => {
   // проверка оставшихся жизней
   if (isMistake) {
     snakeLives -= 1;
-    snakeLives === 0
+    snakeLives < 0
       ? setEvent("game over", "lives limit")
       : setEvent("level continue", level);
   }
@@ -250,7 +254,7 @@ const render = () => {
     levelTime - time < 0 ? 0 : levelTime - time
   )}`;
   levelElement.innerHTML = ` ${level}`; // текущий уровень
-  lifeElement.innerHTML = ` ${snakeLives}`;
+  lifeElement.innerHTML = ` ${snakeLives < 0 ? 0 : snakeLives}`;
   // вывод созданного изображения на экран
   playBoard.innerHTML = !isLevelComplete ? screen : "";
 };
@@ -258,30 +262,32 @@ const render = () => {
   функция checkingRestrictions() проверяет, выполняются ли установленные игрой ограничения
 */
 const checkingRestrictions = () => {
-  // проверка соприкосновения с препятствиями
-  for (let i = 0; i < obstacles.length; i++)
-    if (snakeX === obstacles[i].X && snakeY === obstacles[i].Y) {
-      setEvent(
-        "life lost",
-        "obstacle " + obstacles[i].X + ":" + obstacles[i].Y + " contact"
-      );
-    }
-  // проверка соприкосновения с границами поля
+  if (isTime) {
+    // проверка соприкосновения с препятствиями
+    for (let i = 0; i < obstacles.length; i++)
+      if (snakeX === obstacles[i].X && snakeY === obstacles[i].Y) {
+        setEvent(
+          "life lost",
+          "obstacle " + obstacles[i].X + ":" + obstacles[i].Y + " contact"
+        );
+      }
+    // проверка соприкосновения с границами поля
 
-  if (snakeX <= 0 || snakeX > field || snakeY <= 0 || snakeY > field) {
-    setEvent("life lost", "border " + snakeX + ":" + snakeY + " contact");
-  }
-  // проверка соприкосновения змейки с самой собой
-  for (let i = 0; i < snakeBody.length; i++) {
-    if (
-      i !== 0 &&
-      snakeBody[0][1] === snakeBody[i][1] &&
-      snakeBody[0][0] === snakeBody[i][0]
-    ) {
-      setEvent(
-        "life lost",
-        "contact with oneself " + snakeBody[0][0] + ":" + snakeBody[0][1]
-      );
+    if (snakeX <= 0 || snakeX > field || snakeY <= 0 || snakeY > field) {
+      setEvent("life lost", "border " + snakeX + ":" + snakeY + " contact");
+    }
+    // проверка соприкосновения змейки с самой собой
+    for (let i = 0; i < snakeBody.length; i++) {
+      if (
+        i !== 0 &&
+        snakeBody[0][1] === snakeBody[i][1] &&
+        snakeBody[0][0] === snakeBody[i][0]
+      ) {
+        setEvent(
+          "life lost",
+          "contact with oneself " + snakeBody[0][0] + ":" + snakeBody[0][1]
+        );
+      }
     }
   }
 };
@@ -342,10 +348,10 @@ const protocolExecutor = () => {
       setIntervalId = setInterval(() => {
         // перемещение змейки по игровому полю
         moveSnake();
-        // проверка всех предусмотренных игрой ограничений
-        checkingRestrictions();
         // проверка доступных игроку взаимодействий
         checkingInteractions();
+        // проверка всех предусмотренных игрой ограничений
+        checkingRestrictions();
         protocolExecutor();
         counter();
         // вывод текущего изображения игры
@@ -356,6 +362,7 @@ const protocolExecutor = () => {
       break;
     case "level is complete":
       level++;
+      isTime = false;
       if (level > levels.length) {
         clearInterval(setIntervalId);
         alert("You WIN! Press OK to replay...");
@@ -391,10 +398,18 @@ const protocolExecutor = () => {
       break;
     case "game over":
       clearInterval(setIntervalId);
-      alert("Game over! Press OK to replay...");
+      if (value === "out of lives") {
+        alert("Out of lives! Press OK to replay...");
+        localStorage.setItem("protocol", JSON.stringify(protocol));
+        location.reload();
+        return; // Exit the function to prevent the game from restarting immediately
+      } else {
+        alert("Game over! Press OK to replay...");
+      }
       localStorage.setItem("protocol", JSON.stringify(protocol));
       location.reload();
       break;
+
     case "X":
       stepX = value;
       stepY = 0;
