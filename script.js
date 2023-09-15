@@ -12,16 +12,16 @@ function millisecondsToMinutesAndSeconds(milliseconds) {
   return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
 }
 const levels = [
-  {
-    field: 15,
-    time: 15000,
-    timeStep: 250,
-    food: 2,
-    snakeLives: 2,
-    obstacles: [],
-    bonuses: [],
-    maxScores: 2,
-  },
+  // {
+  //   field: 15,
+  //   time: 15000,
+  //   timeStep: 250,
+  //   food: 2,
+  //   snakeLives: 2,
+  //   obstacles: [],
+  //   bonuses: [],
+  //   maxScores: 2,
+  // },
   {
     field: 30,
     time: 35000,
@@ -30,8 +30,8 @@ const levels = [
     snakeLives: 3,
     obstacles: ["fix", "fix", "x", "y"],
     bonuses: [
-      { type: "points", value: 10, startFood: 2 },
-      { type: "points", value: 20, startFood: 5 },
+      { type: "points", value: 10, startFood: 1 },
+      { type: "lives", value: 20, startFood: 4 },
     ],
     maxScores: 39,
   },
@@ -194,7 +194,10 @@ const setObstaclePosition = () => {
 const setBonusPosition = () => {
   let copySnake = snakeBody.slice();
   [bonusX, bonusY] = getFreeCell(copySnake.concat(obstacles, [foodX, foodY]));
-  setEvent("set point bonus", bonusX + ":" + bonusY);
+  setEvent(
+    `set ${levels[level - 1].bonuses[currentBonus].type} bonus`,
+    bonusX + ":" + bonusY
+  );
 };
 
 const changeDirection = (e) => {
@@ -245,7 +248,9 @@ const render = () => {
     screen += `<div class="obstacle" style="grid-area: ${obstacles[i].Y} / ${obstacles[i].X}"></div>`;
   // четвертым создается бонус, если он есть
   if (isBonus && !isBonusEaten)
-    screen += `<div class="bonus" style="grid-area: ${bonusY} / ${bonusX}"></div>`;
+    screen += `<div class="bonus-${
+      levels[level - 1].bonuses[currentBonus].type
+    }" style="grid-area: ${bonusY} / ${bonusX}"></div>`;
   // после  игрового поля создается табло
   scoreElement.innerHTML = ` ${score}`; // текущие очки
   leftToEatElement.innerHTML = ` ${leftToEat}`; // максимально возможный результат
@@ -301,7 +306,12 @@ const checkingInteractions = () => {
   }
   // проверка соприкосновения змейки с бонусом
   if (snakeX === bonusX && snakeY === bonusY && isBonus) {
-    setEvent("bonus eaten", levels[level - 1].bonuses[currentBonus].value);
+    setEvent(
+      "bonus eaten",
+      `${levels[level - 1].bonuses[currentBonus].value} ${
+        levels[level - 1].bonuses[currentBonus].type
+      }`
+    );
   }
 };
 /*
@@ -333,7 +343,16 @@ const protocolExecutor = () => {
     case "bonus eaten":
       if (!isBonusEaten) {
         isBonusEaten = true;
-        score += value;
+        const bonusType = levels[level - 1].bonuses[currentBonus].type;
+        const bonusValue = levels[level - 1].bonuses[currentBonus].value;
+        switch (bonusType) {
+          case "lives":
+            snakeLives += bonusValue;
+            break;
+          case "points":
+            score += bonusValue;
+            break;
+        }
       }
       break;
     case "start level":
