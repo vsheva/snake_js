@@ -43,8 +43,12 @@ body {
   background: orange;
 }
 
-.play-board .bonus {
+.play-board .bonus-points {
   background: green;
+}
+
+.play-board .bonus-lives {
+  background: lime;
 }
 
 .play-board .head {
