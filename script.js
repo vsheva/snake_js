@@ -28,7 +28,7 @@ const levels = [
     timeStep: 125,
     food: 8,
     snakeLives: 3,
-    obstacles: ["fix", "fix", "x", "y"],
+    obstacles: ["fix", "fix", "fix", "fix", "fix", "x", "y"],
     bonuses: [
       { type: "points", value: 10, startFood: 1 },
       { type: "lives", value: 20, startFood: 4 },
@@ -185,7 +185,7 @@ const setObstaclePosition = () => {
   booking.push(copySnake);
   for (let i = 0; i < levels[level - 1].obstacles.length; i++) {
     [obstacleX, obstacleY] = getFreeCell(booking);
-    obstacles.push({ X: obstacleX, Y: obstacleY });
+    obstacles.push([obstacleX, obstacleY]);
     setEvent("set fix obstacle", obstacleX + ":" + obstacleY);
     booking.push([obstacleX, obstacleY]);
   }
@@ -245,7 +245,7 @@ const render = () => {
   screen += `<div class="food" style="grid-area: ${foodY} / ${foodX}"></div>`;
   // третьим создается препятствие
   for (let i = 0; i < obstacles.length; i++)
-    screen += `<div class="obstacle" style="grid-area: ${obstacles[i].Y} / ${obstacles[i].X}"></div>`;
+    screen += `<div class="obstacle" style="grid-area: ${obstacles[i][1]} / ${obstacles[i][0]}"></div>`;
   // четвертым создается бонус, если он есть
   if (isBonus && !isBonusEaten)
     screen += `<div class="bonus-${
@@ -270,10 +270,10 @@ const checkingRestrictions = () => {
   if (isTime) {
     // проверка соприкосновения с препятствиями
     for (let i = 0; i < obstacles.length; i++)
-      if (snakeX === obstacles[i].X && snakeY === obstacles[i].Y) {
+      if (snakeX === obstacles[i][0] && snakeY === obstacles[i][1]) {
         setEvent(
           "life lost",
-          "obstacle " + obstacles[i].X + ":" + obstacles[i].Y + " contact"
+          "obstacle " + obstacles[i][0] + ":" + obstacles[i][1] + " contact"
         );
       }
     // проверка соприкосновения с границами поля
