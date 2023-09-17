@@ -28,7 +28,7 @@ const levels = [
     timeStep: 125,
     food: 8,
     snakeLives: 3,
-    obstacles: ['x', 'fix'],
+    obstacles: ['x', 'fix', 'y', 'x'],
     bonuses: [
       { type: 'points', value: 10, startFood: 1 },
       { type: 'lives', value: 20, startFood: 4 },
@@ -76,6 +76,7 @@ const protocol = [];
 let obstacleSpeed = 0;
 let obstacleStep = [];
 let obstaclesX = [];
+let obstaclesY = [];
 
 const setEvent = (newEvent, newValue) => {
   const newRecord = { time: time, event: newEvent, value: newValue };
@@ -113,6 +114,7 @@ const setLevel = () => {
   maxScores = levels[level - 1].maxScores;
   snakeLives = levels[level - 1].snakeLives;
   obstaclesX = levels[level - 1].obstacles.filter(obstacle => obstacle === 'x');
+  obstaclesY = levels[level - 1].obstacles.filter(obstacle => obstacle === 'y');
   score = score + liveScores;
 
   isTime = false;
