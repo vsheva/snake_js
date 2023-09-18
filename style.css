@@ -48,11 +48,11 @@ body {
 }
 
 .play-board .bonus-lives {
-  background: lime;
+  background: darkgreen;
 }
 
 .play-board .bonus-time {
-  background: fuchsia;
+  background: lime;
 }
 
 .play-board .head {
