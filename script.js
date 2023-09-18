@@ -28,7 +28,7 @@ const levels = [
     timeStep: 125,
     food: 8,
     snakeLives: 3,
-    obstacles: ['x', 'fix', 'y', 'x'],
+    obstacles: ['x', 'fix', 'y', 'x', 'y'],
     bonuses: [
       { type: 'points', value: 10, startFood: 1 },
       { type: 'lives', value: 20, startFood: 4 },
@@ -47,7 +47,7 @@ let foodX;
 let foodY;
 let snakeLives;
 let isMistake = false;
-const obstacles = [];
+let obstacles = [];
 let obstacleX;
 let obstacleY;
 let bonusX;
@@ -191,18 +191,31 @@ const moveObstacle = () => {
 
   if (obstacleSpeed / timeStep === 5) {
     if (isTime) {
-      for (let i = 0; i < obstaclesX.length; i++) {
+      for (let i = 0; i < obstaclesY.length; i++) {
         obstacleStep.push(1);
-        if (obstacles[i][0] === field) {
+        if (obstacles[i][1] === field) {
           obstacleStep[i] = -1;
         }
 
-        if (obstacles[i][0] === 1) {
+        if (obstacles[i][1] === 1) {
           obstacleStep[i] = 1;
         }
-        obstacles[i][0] += obstacleStep[i];
+        obstacles[i][1] += obstacleStep[i];
       }
+
+      // for (let i = 0; i < obstaclesX.length; i++) {
+      //   obstacleStep.push(1);
+      //   if (obstacles[i][0] === field) {
+      //     obstacleStep[i] = -1;
+      //   }
+
+      //   if (obstacles[i][0] === 1) {
+      //     obstacleStep[i] = 1;
+      //   }
+      //   obstacles[i][0] += obstacleStep[i];
+      // }
     }
+
     obstacleSpeed = 0;
   }
 };
