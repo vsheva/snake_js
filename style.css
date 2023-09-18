@@ -51,6 +51,10 @@ body {
   background: lime;
 }
 
+.play-board .bonus-time {
+  background: fuchsia;
+}
+
 .play-board .head {
   background: #60cbff;
 }

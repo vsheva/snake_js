@@ -381,6 +381,9 @@ const protocolExecutor = () => {
           case "points":
             score += bonusValue;
             break;
+          case "time":
+            levelTime += bonusValue;
+            break;
         }
       }
       break;
