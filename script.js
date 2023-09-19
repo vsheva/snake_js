@@ -77,6 +77,7 @@ const protocol = [];
 let obstacleSpeed = 0;
 let obstacleStep = [];
 let obstaclesX = [];
+let isRender = false;
 
 const setEvent = (newEvent, newValue) => {
   const newRecord = { time: time, event: newEvent, value: newValue };
@@ -230,21 +231,24 @@ const setBonusPosition = () => {
 };
 
 const changeDirection = (e) => {
-  const { event } = protocol[protocol.length - 1];
-  let newEvent;
-  if (e.key === "ArrowUp" && event !== "Y") {
-    newEvent = { time: time, event: "Y", value: -1 };
-  } else if (e.key === "ArrowDown" && event !== "Y") {
-    newEvent = { time: time, event: "Y", value: 1 };
-  } else if (e.key === "ArrowLeft" && event !== "X") {
-    newEvent = { time: time, event: "X", value: -1 };
-  } else if (e.key === "ArrowRight" && event !== "X") {
-    newEvent = { time: time, event: "X", value: 1 };
-  } else {
-    return;
+  if (isRender) {
+    const { event } = protocol[protocol.length - 1];
+    let newEvent;
+    if (e.key === "ArrowUp" && event !== "Y") {
+      newEvent = { time: time, event: "Y", value: -1 };
+    } else if (e.key === "ArrowDown" && event !== "Y") {
+      newEvent = { time: time, event: "Y", value: 1 };
+    } else if (e.key === "ArrowLeft" && event !== "X") {
+      newEvent = { time: time, event: "X", value: -1 };
+    } else if (e.key === "ArrowRight" && event !== "X") {
+      newEvent = { time: time, event: "X", value: 1 };
+    } else {
+      return;
+    }
+    if (isTime || !isMistake || time === 0) protocol.push(newEvent);
+    isTime = true;
   }
-  if (isTime || !isMistake || time === 0) protocol.push(newEvent);
-  isTime = true;
+  isRender = false;
 };
 
 controls.forEach((key) => {
@@ -291,6 +295,7 @@ const render = () => {
   lifeElement.innerHTML = ` ${snakeLives < 0 ? 0 : snakeLives}`;
   // вывод созданного изображения на экран
   playBoard.innerHTML = !isLevelComplete ? screen : "";
+  isRender = true;
 };
 /*
   функция checkingRestrictions() проверяет, выполняются ли установленные игрой ограничения
@@ -435,7 +440,7 @@ const protocolExecutor = () => {
     case "life lost":
       isMistake = true;
       alert(
-        `You made a mistake here! Be careful! You only have ${snakeLives} lives left!`
+        `You made a mistake ${value} here! Be careful! You only have ${snakeLives} lives left!`
       );
       stepX = 0;
       stepY = 0;
