@@ -212,10 +212,14 @@ const setObstaclePosition = (type) => {
 
   obstaclesDirection = obstaclesDirection.map((obstacle) => {
     [obstacleX, obstacleY] = getFreeCell(booking);
+<<<<<<< HEAD
     setEvent(
       `set obstacle ${type === "fix" ? "fix" : "moving " + type}`,
       obstacleX + ":" + obstacleY
     );
+=======
+    setEvent('set fix obstacle', obstacleX + ':' + obstacleY);
+>>>>>>> 5cde59d (delete console)
     booking.push([obstacleX, obstacleY]);
     return [obstacleX, obstacleY];
   });
@@ -223,6 +227,7 @@ const setObstaclePosition = (type) => {
   return obstaclesDirection;
 };
 
+<<<<<<< HEAD
 const moveObstacle = (direction) => {
   const obstacles = direction === "x" ? obstaclesX.slice() : obstaclesY.slice();
   obstacleSpeed += timeStep;
@@ -230,6 +235,40 @@ const moveObstacle = (direction) => {
     if (isTime) {
       const index = direction === "x" ? 0 : 1;
       for (let i = 0; i < obstacles.length; i++) {
+=======
+const setObstacleXPosition = () => {
+  let booking = [];
+  let copyObstaclesF = obstaclesF.slice();
+  let copySnake = snakeBody.slice();
+  booking.push(copySnake.concat(copyObstaclesF));
+  obstaclesX = obstaclesX.map(obstacle => {
+    [obstacleX, obstacleY] = getFreeCell(booking);
+    setEvent('set obstacle moving by X', obstacleX + ':' + obstacleY);
+    booking.push([obstacleX, obstacleY]);
+    return [obstacleX, obstacleY];
+  });
+};
+
+const setObstacleYPosition = () => {
+  let booking = [];
+  let copyObstaclesF = obstaclesF.slice();
+  let copyObstaclesX = obstaclesX.slice();
+  let copySnake = snakeBody.slice();
+  booking.push(copySnake.concat(copyObstaclesF, copyObstaclesX));
+  obstaclesY = obstaclesY.map(obstacle => {
+    [obstacleX, obstacleY] = getFreeCell(booking);
+    setEvent('set obstacle moving by Y', obstacleX + ':' + obstacleY);
+    booking.push([obstacleX, obstacleY]);
+    return [obstacleX, obstacleY];
+  });
+};
+
+const moveObstacleX = () => {
+  obstacleSpeed += timeStep;
+  if (obstacleSpeed / timeStep === 5) {
+    if (isTime) {
+      for (let i = 0; i < obstaclesX.length; i++) {
+>>>>>>> 5cde59d (delete console)
         obstacleStep.push(1);
         if (obstacles[i][index] === field) {
           obstacleStep[i] = -1;
@@ -244,7 +283,28 @@ const moveObstacle = (direction) => {
     obstacleSpeed = 0;
   }
 
+<<<<<<< HEAD
   return obstacles;
+=======
+const moveObstacleY = () => {
+  obstacleSpeed += timeStep;
+  if (obstacleSpeed / timeStep === 5) {
+    if (isTime) {
+      for (let i = 0; i < obstaclesY.length; i++) {
+        obstacleStep.push(1);
+        if (obstaclesY[i][1] === field) {
+          obstacleStep[i] = -1;
+        }
+
+        if (obstaclesY[i][1] === 1) {
+          obstacleStep[i] = 1;
+        }
+        obstaclesY[i][1] += obstacleStep[i];
+      }
+    }
+    obstacleSpeed = 0;
+  }
+>>>>>>> 5cde59d (delete console)
 };
 
 const setBonusPosition = () => {
