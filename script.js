@@ -151,11 +151,11 @@ const counter = () => {
       if (currentFood === bonusesList[i].start && !isBonusShow) {
         isBonus = true;
         isBonusShow = true;
-        currentBonus = i; //!
+        currentBonus = i; 
         setBonusPosition();
       }
       if (currentFood === bonusesList[i].end) {
-        if (isBonusShow && !isBonusEaten) setEvent('bonus is deleted', currentBonus + 1); //!
+        if (isBonusShow && !isBonusEaten) setEvent('bonus is deleted', currentBonus + 1); 
         isBonus = false;
         isBonusEaten = false;
         isBonusShow = false;
@@ -174,7 +174,6 @@ const counter = () => {
 const setFoodPosition = () => {
   let copySnake = snakeBody.slice();
   if (currentFood !== foodLevel - 1) {
-    //!
     [foodX, foodY] = getFreeCell(copySnake.concat(obstacles));
     setEvent('set food', foodX + ':' + foodY);
   }
@@ -186,7 +185,6 @@ const setObstacleFixPosition = () => {
   booking.push(copySnake);
   obstaclesF = obstaclesF.map(obstacle => {
     [obstacleX, obstacleY] = getFreeCell(booking);
-    //console.log('X, Y fix', [obstacleX, obstacleY]);
     setEvent('set fix obstacle', obstacleX + ':' + obstacleY);
     booking.push([obstacleX, obstacleY]);
     return [obstacleX, obstacleY];
@@ -198,10 +196,8 @@ const setObstacleXPosition = () => {
   let copyObstaclesF = obstaclesF.slice();
   let copySnake = snakeBody.slice();
   booking.push(copySnake.concat(copyObstaclesF));
-  //console.log('obstaclesX before map', obstaclesX); //["x", "x", "x"]
   obstaclesX = obstaclesX.map(obstacle => {
     [obstacleX, obstacleY] = getFreeCell(booking);
-    //console.log('X, Y  in direction X', [obstacleX, obstacleY]); // для каждого препятствия выводим координаты
     setEvent('set obstacle moving by X', obstacleX + ':' + obstacleY);
     booking.push([obstacleX, obstacleY]);
     return [obstacleX, obstacleY];
@@ -216,7 +212,6 @@ const setObstacleYPosition = () => {
   booking.push(copySnake.concat(copyObstaclesF, copyObstaclesX));
   obstaclesY = obstaclesY.map(obstacle => {
     [obstacleX, obstacleY] = getFreeCell(booking);
-    //console.log('X, Y  in direction Y', [obstacleX, obstacleY]);
     setEvent('set obstacle moving by Y', obstacleX + ':' + obstacleY);
     booking.push([obstacleX, obstacleY]);
     return [obstacleX, obstacleY];
@@ -227,7 +222,6 @@ const moveObstacleX = () => {
   obstacleSpeed += timeStep;
   if (obstacleSpeed / timeStep === 5) {
     if (isTime) {
-      //console.log('obstaclesX ', obstaclesX); // [[17, 30], [22, 5],[14, 10]]
       for (let i = 0; i < obstaclesX.length; i++) {
         obstacleStep.push(1);
         if (obstaclesX[i][0] === field) {
@@ -248,7 +242,6 @@ const moveObstacleY = () => {
   obstacleSpeed += timeStep;
   if (obstacleSpeed / timeStep === 5) {
     if (isTime) {
-      //console.log('obstaclesY ', obstaclesY); // [[15,21], [16,14]]
       for (let i = 0; i < obstaclesY.length; i++) {
         obstacleStep.push(1);
         if (obstaclesY[i][1] === field) {
